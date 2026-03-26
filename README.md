@@ -1,116 +1,271 @@
-# -Basil-Plant-Tracker-Hyperledger-Fabric
-🌿 Basil Plant Tracker | Hyperledger Fabric Track basil from greenhouse to supermarket with blockchain-powered precision. Java-based smart contracts, GPS logging, and multi-organization support ensure full traceability and auditability. 🚀
+# Basil Plant Tracking System - Hyperledger Fabric Implementation
 
+A comprehensive blockchain-based basil plant tracking system built on Hyperledger Fabric for **Pittaluga & fratelli** greenhouse operations. This system enables end-to-end traceability of basil plants from greenhouse cultivation to supermarket delivery.
 
+## 🌿 **Project Overview**
 
+This project implements a complete supply chain tracking solution for basil plants using:
+- **Smart Contract (Chaincode)**: Java-based contract for basil lifecycle management
+- **Client Application**: Console-based Java application for plant operations
+- **Multi-Organization Support**: Org1MSP (Pittaluga & fratelli) and Org2MSP (Supermarket)
+- **Complete Audit Trail**: Full history tracking with GPS positioning
 
-A complete blockchain-based system for tracking basil plants, designed for Pittaluga & fratelli greenhouse operations. This platform ensures full traceability from planting to supermarket delivery.
+## 🏗️ **Architecture**
 
-🔹 Project Overview
+### Data Model
+- **Basil**: Main entity with QR code, extra info, and owner
+- **Owner**: Organization and user identification  
+- **BasilLeg**: Timestamp and GPS position tracking
 
-This project provides a comprehensive supply chain tracking solution for basil plants:
+### Smart Contract Functions
+- `createTracking` - Initialize basil plant tracking
+- `stopTracking` - Terminate plant tracking
+- `updateTracking` - Update GPS position and timestamp
+- `getActualTracking` - Retrieve current plant state
+- `getHistory` - Get complete audit trail
+- `transferTracking` - Transfer ownership between organizations
+- `queryAllBasil` - List all tracked plants
 
-Smart Contract (Chaincode): Java-based contract for managing basil lifecycle
-Client Application: Console-based Java app for plant operations
-Multi-Organization Support: Org1MSP (greenhouse) & Org2MSP (supermarket)
-Full Audit Trail: Records history with GPS coordinates
-🏗️ Architecture
+## 📋 **Prerequisites**
 
-Data Model
+### System Requirements
+- **Java 11+** (OpenJDK or Oracle JDK)
+- **Docker & Docker Compose**
+- **Node.js 14+** (for Fabric binaries)
+- **Git**
+- **curl**
 
-Entity	Description
-Basil	Main entity with QR code, extra info, and owner
-Owner	Organization and user identification
-BasilLeg	Timestamp and GPS location tracking
+### Hyperledger Fabric Setup
+1. **Download Fabric Samples and Binaries**:
+   ```bash
+   curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
+   ./install-fabric.sh docker samples binary
+   ```
 
-Smart Contract Functions
+2. **Navigate to Fabric Samples**:
+   ```bash
+   cd fabric-samples
+   ```
 
-createTracking – Start basil plant tracking
-stopTracking – Stop tracking
-updateTracking – Update GPS location and timestamp
-getActualTracking – Get current plant status
-getHistory – Retrieve complete audit trail
-transferTracking – Transfer ownership
-queryAllBasil – List all tracked plants
-📋 Prerequisites
+## 🚀 **Deployment Guide**
 
-System Requirements:
+### Step 1: Start the Fabric Network
 
-Java 11+
-Docker & Docker Compose
-Node.js 14+
-Git & curl
-
-Hyperledger Fabric Setup:
-
-curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
-./install-fabric.sh docker samples binary
-cd fabric-samples
-🚀 Deployment Guide
-
-1️⃣ Start Fabric Network
-
+```bash
+# Navigate to test-network directory
 cd fabric-samples/test-network
+
+# Clean any existing network
 ./network.sh down
+
+# Start the network with certificate authorities
 ./network.sh up createChannel -ca
-docker ps  # check running containers
 
-2️⃣ Deploy Basil Chaincode
+# Verify network is running
+docker ps
+```
 
-cd /path/to/basilChainCode
-./gradlew clean installDist
+Expected containers:
+- `peer0.org1.example.com`
+- `peer0.org2.example.com`
+- `orderer.example.com`
+- `ca.org1.example.com`
+- `ca.org2.example.com`
+
+### Step 2: Deploy the Basil Chaincode
+
+```bash
+# Navigate to your project directory
+cd /path/to/Pittaluga-fratelli/basilChainCode
+
+# Build the chaincode
+./gradlew clean
+./gradlew installDist
+
+# Deploy to the network
 cd fabric-samples/test-network
-./network.sh deployCC -ccn basil -ccp /path/to/basilChainCode -ccl java
+./network.sh deployCC -ccn basil -ccp /path/to/Pittaluga-fratelli/basilChainCode -ccl java
+```
 
-3️⃣ Update App Configuration
+**Successful deployment shows**:
+```
+Chaincode definition committed on channel 'mychannel'
+Version: 1.0, Sequence: 1, Endorsement Plugin: escc, Validation Plugin: vscc
+Approvals: [Org1MSP: true, Org2MSP: true]
+```
 
+### Step 3: Update Network Configuration
+
+Ensure your `App.java` points to the correct network path:
+
+```java
 private static final Path PATH_TO_TEST_NETWORK = Paths.get("/path/to/fabric-samples/test-network");
 private static final String CHAINCODE_NAME = "basil";
-🖥️ Running the Client
+```
 
-Direct Execution:
+## 🖥️ **Running the Client Application**
 
+### Method 1: Direct Execution (Recommended)
+```bash
 cd /path/to/basilChainCode
 ./gradlew installDist
 ./build/install/basil/bin/basil
+```
 
-Via Gradle Run:
-
+### Method 2: Gradle Run
+```bash
 ./gradlew run --console=plain
-📱 Application Menu
+```
+
+## 📱 **Usage Guide**
+
+### Application Menu Options
+
+```
+==================================================
 BASIL PLANT TRACKING - MAIN MENU
-1. Create new plant tracking
-2. Stop plant tracking
-3. Update plant state
-4. Get plant current state
-5. Get plant history
-6. Transfer plant ownership
-7. Query all plants
-8. Switch organization (Org1/Org2)
-0. Exit
+==================================================
+1.  Create new plant tracking
+2.  Stop plant tracking
+3.  Update plant state
+4.  Get plant current state
+5.  Get plant history
+6.  Transfer plant ownership
+7.  Query all plants
+8.  Switch organization (Org1/Org2)
+9.  Show connection info
+0.  Exit
+==================================================
+```
 
-Example Workflow:
+### Complete Workflow Example
 
-Create plant tracking: QR = BASIL001, Extra info: Premium basil, Owner: Org1MSP
-Update location: GPS = 44.4056,8.9463
-Transfer to supermarket: New owner = Org2MSP
-View complete history
-🧪 Testing Scenarios
-Basic Plant Lifecycle: Create → Update GPS → Transfer → View history
-Multi-Org Access: Test permission limits between Org1MSP & Org2MSP
-Full Audit Trail: Create multiple plants, perform operations, review histories
-🛠️ Troubleshooting
-Check network status: docker ps
-Rebuild chaincode: ./gradlew clean installDist
-View peer logs: docker logs peer0.org1.example.com -f
-🔒 Security
-Identity-based access control (MSP)
-Ownership validation
-Immutable transaction history
-Multi-signature endorsement
-🤝 Contributing
-Fork the repo
-Create a feature branch
-Implement your changes
-Test thoroughly
-Submit a pull request
+#### 1. Create Plant Tracking
+```
+Choice: 1
+QR code: BASIL001
+Extra info: Premium basil from greenhouse A
+Owner organization: Org1MSP
+Owner user: User1@org1.example.com
+```
+
+#### 2. Update Plant Location
+```
+Choice: 3
+QR code: BASIL001
+Timestamp: 1672531200000
+GPS position: 44.4056,8.9463
+Requester org: Org1MSP
+Requester user: User1@org1.example.com
+```
+
+#### 3. Transfer to Supermarket
+```
+Choice: 6
+QR code: BASIL001
+New owner org: Org2MSP
+New owner user: User1@org2.example.com
+```
+
+#### 4. View Complete History
+```
+Choice: 5
+QR code: BASIL001
+```
+
+## 🔄 **Organization Switching**
+
+### Switch to Org2MSP (Supermarket)
+```
+Choice: 8
+Select organization: 2
+```
+
+The application will reconnect using Org2MSP certificates, allowing supermarket operations.
+
+## 🧪 **Testing Scenarios**
+
+### Test 1: Basic Plant Lifecycle
+1. Create plant as Org1MSP
+2. Update GPS position
+3. Transfer to Org2MSP
+4. View history
+
+### Test 2: Multi-Organization Access
+1. Create plant as Org1MSP
+2. Switch to Org2MSP
+3. Try to update plant (should fail - unauthorized)
+4. Switch back to Org1MSP
+5. Transfer ownership to Org2MSP
+6. Switch to Org2MSP
+7. Update plant (should succeed)
+
+### Test 3: Complete Audit Trail
+1. Create multiple plants
+2. Perform various operations
+3. Query all plants
+4. Review individual histories
+
+## 🛠️ **Troubleshooting**
+
+### Common Issues
+
+#### 1. Network Connection Errors
+```bash
+# Check if network is running
+docker ps
+
+# Restart network if needed
+./network.sh down
+./network.sh up createChannel -ca
+```
+
+#### 2. Chaincode Deployment Failures
+```bash
+# Check if build directory exists
+ls -la build/install/
+
+# Rebuild if needed
+./gradlew clean installDist
+
+# Redeploy with new version
+./network.sh deployCC -ccn basil -ccp /path/to/basilChainCode -ccl java -ccv 2.0 -ccs 2
+```
+### Debug Commands
+
+```bash
+# Check chaincode status
+peer lifecycle chaincode querycommitted --channelID mychannel --name basil
+
+# View peer logs
+docker logs peer0.org1.example.com -f
+
+# Check network connectivity
+docker network ls
+```
+
+
+- **Deterministic Execution**: Uses transaction timestamps for consistency
+- **Efficient Queries**: Optimized state database operations
+- **Minimal Data Storage**: Compact JSON serialization
+
+## 🤝 **Contributing**
+
+1. Fork the repository
+2. Create feature branch
+3. Implement changes
+4. Test thoroughly
+5. Submit pull request
+
+## 📄 **License**
+
+This project is licensed under the Apache License 2.0 - see the LICENSE file for details.
+
+## 🆘 **Support**
+
+For issues and questions:
+- Check troubleshooting section
+- Review Hyperledger Fabric documentation
+- Open GitHub issue with detailed error logs
+
+---
